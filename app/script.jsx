@@ -4,8 +4,8 @@ const Main = React.createClass({
             <div>
                 Start
             </div>
-        )
+        );
     }
 });
 
-React.render(<Main />, document.getElementById('root'));
+React.render(<Main />, document.getElementById('container'));
