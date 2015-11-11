@@ -1,0 +1,21 @@
+{
+  "name": "Levi9-Play9-reactJS",
+  "homepage": "https://github.com/dborysov/Levi9-Play9-reactJS",
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "authors": [
+    "Dmytro Borysov"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "0.14.2"
+  }
+}
