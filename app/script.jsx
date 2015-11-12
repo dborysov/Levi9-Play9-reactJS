@@ -103,7 +103,10 @@ const Game = React.createClass({
         if(~this.state.selectedNumbers.indexOf(clickedNumber)) return;
     
         this.setState(
-            {selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)}
+            {
+                selectedNumbers: this.state.selectedNumbers.concat(clickedNumber),
+                correct: null
+            }
         )
     },
     unselectNumber: function(clickedNumber) {
@@ -112,7 +115,11 @@ const Game = React.createClass({
               
         selectedNumbers.splice(clickedNumberIndex, 1);
         
-        this.setState({selectedNumbers: selectedNumbers});
+        this.setState(
+            {
+                selectedNumbers: selectedNumbers,
+                correct: null
+            });
     },
     checkAnswer: function() {
         const correct = this.state.numberOfStars === this.state.selectedNumbers.reduce((aggr, el) => aggr + el, 0);
