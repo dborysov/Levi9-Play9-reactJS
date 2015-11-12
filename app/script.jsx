@@ -15,12 +15,39 @@ const StarsFrame = React.createClass({
 });
 
 const ButtonFrame = React.createClass({
-    render: function() {        
-        return (
-            <div id="button-frame">
-                <button className="btn btn-primary btn-lg" disabled={!this.props.selectedNumbers.length}>=</button>
-            </div>
-        );
+    render: function() {
+        let button;       
+        switch(this.props.correct) {
+            case true:
+                button = (
+                    <button className="btn btn-success btn-lg">
+                        <span className="glyphicon glyphicon-ok"></span>
+                    </button>
+                );
+                break;
+            case false:
+                button = (
+                    <button className="btn btn-danger btn-lg">
+                        <span className="glyphicon glyphicon-remove"></span>
+                    </button>
+                );
+                break;
+            default:
+                const disabled = (!this.props.selectedNumbers.length);
+                button = (
+                    <button className="btn btn-primary btn-lg" disabled={disabled}
+                            onClick={this.props.checkAnswer}>
+                        =
+                    </button>
+                );
+                break;
+            }
+            
+            return (
+                <div id="button-frame">
+                    {button}
+                </div>
+            );
     }
 });
 
@@ -69,7 +96,8 @@ const NumbersFrame = React.createClass({
 const Game = React.createClass({
     getInitialState: () => ({
         selectedNumbers: [],
-        numberOfStars: Math.floor(Math.random() * 9) + 1
+        numberOfStars: Math.floor(Math.random() * 9) + 1,
+        correct: null
     }),
     selectNumber: function(clickedNumber) {
         if(~this.state.selectedNumbers.indexOf(clickedNumber)) return;
@@ -86,6 +114,11 @@ const Game = React.createClass({
         
         this.setState({selectedNumbers: selectedNumbers});
     },
+    checkAnswer: function() {
+        const correct = this.state.numberOfStars === this.state.selectedNumbers.reduce((aggr, el) => aggr + el, 0);
+        
+        this.setState({correct: correct});
+    },
     render: function() {
         return (
             <div id="game">
@@ -93,7 +126,9 @@ const Game = React.createClass({
                 <hr />
                 <div className="clearfix">
                     <StarsFrame numberOfStars={this.state.numberOfStars} />
-                    <ButtonFrame selectedNumbers={this.state.selectedNumbers} />
+                    <ButtonFrame selectedNumbers={this.state.selectedNumbers}
+                                 correct={this.state.correct}
+                                 checkAnswer={this.checkAnswer} />
                     <AnswerFrame selectedNumbers={this.state.selectedNumbers}
                                  unselectNumber={this.unselectNumber} />
                 </div>
