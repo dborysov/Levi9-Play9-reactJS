@@ -1,13 +1,8 @@
 const StarsFrame = React.createClass({
     render: function() {
-        const numberOfStars = Math.floor(Math.random() * 9) + 1;
-        
-        const stars = [];
-        for(let i = 0; i < numberOfStars; i++) {
-            stars.push(
-                <span className="glyphicon glyphicon-star"></span>
-            );
-        }
+        const stars = new Array(this.props.numberOfStars + 1).join('_').split('').map(el =>
+            <span className="glyphicon glyphicon-star"></span>
+        );
         
         return (
             <div id="stars-frame">
@@ -44,13 +39,14 @@ const AnswerFrame = React.createClass({
 const NumbersFrame = React.createClass({
     render: function() {
         const numbers = [],
-              selectedNumbers = this.props.selectedNumbers;
+              selectedNumbers = this.props.selectedNumbers,
+              clickNumber = this.props.clickNumber;
         let className;
         
         for(let i = 1; i < 10; i++) {
             className = `number selected-${!!~selectedNumbers.indexOf(i)}`;
             numbers.push(
-                <div className={className}>{i}</div>
+                <div className={className} onClick={() => {clickNumber(i)}}>{i}</div>
             );
         }
     
@@ -65,18 +61,29 @@ const NumbersFrame = React.createClass({
 });
 
 const Game = React.createClass({
-    getInitialState: () => ({selectedNumbers: [3, 6]}),
+    getInitialState: () => ({
+        selectedNumbers: [],
+        numberOfStars: Math.floor(Math.random() * 9) + 1
+    }),
+    clickNumber: function(clickedNumber) {
+        if(~this.state.selectedNumbers.indexOf(clickedNumber)) return;
+    
+        this.setState(
+            {selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)}
+        )
+    },
     render: function() {
         return (
             <div id="game">
                 <h2>Play Nine</h2>
                 <hr />
                 <div className="clearfix">
-                    <StarsFrame />
+                    <StarsFrame numberOfStars={this.state.numberOfStars} />
                     <ButtonFrame />
                     <AnswerFrame selectedNumbers={this.state.selectedNumbers} />
                 </div>
-                <NumbersFrame selectedNumbers={this.state.selectedNumbers} />
+                <NumbersFrame selectedNumbers={this.state.selectedNumbers} 
+                              clickNumber={this.clickNumber}/>
             </div>
         );
     }
