@@ -20,7 +20,7 @@ const ButtonFrame = React.createClass({
         switch(this.props.correct) {
             case true:
                 button = (
-                    <button className="btn btn-success btn-lg">
+                    <button className="btn btn-success btn-lg" onClick={this.props.acceptAnswer}>
                         <span className="glyphicon glyphicon-ok"></span>
                     </button>
                 );
@@ -46,6 +46,10 @@ const ButtonFrame = React.createClass({
             return (
                 <div id="button-frame">
                     {button}
+                    <br /><br />
+                    <button className="btn btn-warning btn-xs" onClick={this.props.redraw} disabled={this.props.redraws === 0}>
+                        <span className="glyphicon glyphicon-refresh">&nbsp;{this.props.redraws}</span>
+                    </button>
                 </div>
             );
     }
@@ -73,11 +77,12 @@ const NumbersFrame = React.createClass({
     render: function() {
         const numbers = [],
               selectedNumbers = this.props.selectedNumbers,
-              selectNumber = this.props.selectNumber;
+              selectNumber = this.props.selectNumber,
+              usedNumbers = this.props.usedNumbers;
         let className;
         
         for(let i = 1; i < 10; i++) {
-            className = `number selected-${!!~selectedNumbers.indexOf(i)}`;
+            className = `number selected-${!!~selectedNumbers.indexOf(i)} used-${!!~usedNumbers.indexOf(i)}`;
             numbers.push(
                 <div className={className} onClick={() => {selectNumber(i)}}>{i}</div>
             );
@@ -94,13 +99,18 @@ const NumbersFrame = React.createClass({
 });
 
 const Game = React.createClass({
-    getInitialState: () => ({
-        selectedNumbers: [],
-        numberOfStars: Math.floor(Math.random() * 9) + 1,
-        correct: null
-    }),
+    getInitialState: function() { 
+    return {
+            selectedNumbers: [],
+            usedNumbers: [],
+            numberOfStars: this.getRandom1to9(),
+            redraws: 5,
+            correct: null
+        };
+    },
+    getRandom1to9: () => Math.floor(Math.random() * 9) + 1,
     selectNumber: function(clickedNumber) {
-        if(~this.state.selectedNumbers.indexOf(clickedNumber)) return;
+        if(~this.state.selectedNumbers.concat(this.state.usedNumbers).indexOf(clickedNumber)) return;
     
         this.setState(
             {
@@ -126,6 +136,24 @@ const Game = React.createClass({
         
         this.setState({correct: correct});
     },
+    acceptAnswer: function() {
+        const usedNumbers = this.state.selectedNumbers.concat(this.state.usedNumbers);
+        this.setState({
+            selectedNumbers: [],
+            usedNumbers: usedNumbers,
+            correct: null,
+            numberOfStars: this.getRandom1to9()
+        });
+    },
+    redraw: function() {
+        if(!this.state.redraws) return;
+        this.setState({
+            numberOfStars: this.getRandom1to9(),
+            correct: null,
+            selectedNumbers: [],
+            redraws: this.state.redraws - 1
+        });
+    },
     render: function() {
         return (
             <div id="game">
@@ -135,11 +163,15 @@ const Game = React.createClass({
                     <StarsFrame numberOfStars={this.state.numberOfStars} />
                     <ButtonFrame selectedNumbers={this.state.selectedNumbers}
                                  correct={this.state.correct}
-                                 checkAnswer={this.checkAnswer} />
+                                 checkAnswer={this.checkAnswer}
+                                 acceptAnswer={this.acceptAnswer}
+                                 redraw={this.redraw}
+                                 redraws={this.state.redraws} />
                     <AnswerFrame selectedNumbers={this.state.selectedNumbers}
                                  unselectNumber={this.unselectNumber} />
                 </div>
-                <NumbersFrame selectedNumbers={this.state.selectedNumbers} 
+                <NumbersFrame selectedNumbers={this.state.selectedNumbers}
+                              usedNumbers={this.state.usedNumbers}
                               selectNumber={this.selectNumber}/>
             </div>
         );

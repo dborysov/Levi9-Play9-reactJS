@@ -37,3 +37,9 @@
     color: #ddd;
     cursor: default;
 }
+
+#numbers-frame .used-true {
+    background-color: #ada;
+    color: #9b9;
+    cursor: default;
+}
