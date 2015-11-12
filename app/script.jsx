@@ -1,3 +1,21 @@
+function possibleCombinationSum(arr, n) {
+    if (arr.indexOf(n) >= 0) { return true; }
+    if (arr[0] > n) { return false; }
+    if (arr[arr.length - 1] > n) {
+        arr.pop();
+        return possibleCombinationSum(arr, n);
+    }
+    var listSize = arr.length, combinationsCount = (1 << listSize)
+    for (var i = 1; i < combinationsCount ; i++ ) {
+        var combinationSum = 0;
+        for (var j=0 ; j < listSize ; j++) {
+            if (i & (1 << j)) { combinationSum += arr[j]; }
+        }
+        if (n === combinationSum) { return true; }
+    }
+    return false;
+};
+
 const StarsFrame = React.createClass({
     render: function() {
         const stars = new Array(this.props.numberOfStars + 1).join('_').split('').map(el =>
@@ -98,6 +116,16 @@ const NumbersFrame = React.createClass({
     }
 });
 
+const DoneFrame = React.createClass({
+    render: function() {
+        return (
+            <div className="well text-center">
+                <h2>{this.props.doneStatus}</h2>
+            </div>
+        );
+    }
+});
+
 const Game = React.createClass({
     getInitialState: function() { 
     return {
@@ -105,7 +133,8 @@ const Game = React.createClass({
             usedNumbers: [],
             numberOfStars: this.getRandom1to9(),
             redraws: 5,
-            correct: null
+            correct: null,
+            doneStatus: null
         };
     },
     getRandom1to9: () => Math.floor(Math.random() * 9) + 1,
@@ -143,6 +172,8 @@ const Game = React.createClass({
             usedNumbers: usedNumbers,
             correct: null,
             numberOfStars: this.getRandom1to9()
+        }, function() {
+            this.updateDoneStatus();
         });
     },
     redraw: function() {
@@ -152,9 +183,38 @@ const Game = React.createClass({
             correct: null,
             selectedNumbers: [],
             redraws: this.state.redraws - 1
+        }, function() {
+            this.updateDoneStatus();
         });
     },
+    possibleSolution: function() {
+        const numberOfStars = this.state.numberOfStars,
+              possibleNumbers = [],
+              usedNumbers = this.state.usedNumbers;
+              
+        for (let i = 1; i <= 9; i++) {
+            if (usedNumbers.indexOf(i) < 0) {
+                possibleNumbers.push(i);
+            }
+        }
+        
+        return possibleCombinationSum(possibleNumbers, numberOfStars);
+    },
+    updateDoneStatus: function() {
+        if(this.state.usedNumbers.length === 9) {
+            this.setState({ doneStatus: 'Done. Nice!' });
+            return
+        }
+        if (this.state.redraws === 0 && !this.possibleSolution()) {
+            this.setState({doneStatus: 'Game Over!'});
+        }
+    },
     render: function() {
+        const bottomFrame = this.state.doneStatus
+            ? <DoneFrame doneStatus={this.state.doneStatus} />
+            : <NumbersFrame selectedNumbers={this.state.selectedNumbers}
+                              usedNumbers={this.state.usedNumbers}
+                              selectNumber={this.selectNumber}/>
         return (
             <div id="game">
                 <h2>Play Nine</h2>
@@ -170,9 +230,7 @@ const Game = React.createClass({
                     <AnswerFrame selectedNumbers={this.state.selectedNumbers}
                                  unselectNumber={this.unselectNumber} />
                 </div>
-                <NumbersFrame selectedNumbers={this.state.selectedNumbers}
-                              usedNumbers={this.state.usedNumbers}
-                              selectNumber={this.selectNumber}/>
+                {bottomFrame}
             </div>
         );
     }
