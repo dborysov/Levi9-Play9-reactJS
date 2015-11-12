@@ -121,6 +121,7 @@ const DoneFrame = React.createClass({
         return (
             <div className="well text-center">
                 <h2>{this.props.doneStatus}</h2>
+                <button className="btn btn-default" onClick={this.props.resetGame}>Play again</button>
             </div>
         );
     }
@@ -128,14 +129,17 @@ const DoneFrame = React.createClass({
 
 const Game = React.createClass({
     getInitialState: function() { 
-    return {
-            selectedNumbers: [],
-            usedNumbers: [],
-            numberOfStars: this.getRandom1to9(),
-            redraws: 5,
-            correct: null,
-            doneStatus: null
-        };
+        return {
+                selectedNumbers: [],
+                usedNumbers: [],
+                numberOfStars: this.getRandom1to9(),
+                redraws: 5,
+                correct: null,
+                doneStatus: null
+            };
+    },
+    resetGame: function() {
+        this.replaceState(this.getInitialState());
     },
     getRandom1to9: () => Math.floor(Math.random() * 9) + 1,
     selectNumber: function(clickedNumber) {
@@ -211,7 +215,8 @@ const Game = React.createClass({
     },
     render: function() {
         const bottomFrame = this.state.doneStatus
-            ? <DoneFrame doneStatus={this.state.doneStatus} />
+            ? <DoneFrame doneStatus={this.state.doneStatus}
+                         resetGame={this.resetGame} />
             : <NumbersFrame selectedNumbers={this.state.selectedNumbers}
                               usedNumbers={this.state.usedNumbers}
                               selectNumber={this.selectNumber}/>
